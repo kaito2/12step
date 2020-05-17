@@ -1,4 +1,4 @@
-PREFIX  = ~/12step/tools
+PREFIX  = ~/.ghq/github.com/kaito2/12step/tools
 ARCH    = h8300-elf
 BINDIR  = $(PREFIX)/bin
 ADDNAME = $(ARCH)-
@@ -25,7 +25,7 @@ OBJS += lib.o serial.o
 TARGET = kzload
 
 CFLAGS = -Wall -mh -nostdinc -nostdlib -fno-builtin
-#CFLAGS += -mint32 # int¤ò32¥Ó¥Ã¥È¤Ë¤¹¤ë¤È³Ý»»¡¿³ä»»¤¬¤Ç¤­¤Ê¤¯¤Ê¤ë
+#CFLAGS += -mint32 # intï¿½ï¿½32ï¿½Ó¥Ã¥È¤Ë¤ï¿½ï¿½ï¿½È³Ý»ï¿½ï¿½ï¿½ï¿½ä»»ï¿½ï¿½ï¿½Ç¤ï¿½ï¿½Ê¤ï¿½ï¿½Ê¤ï¿½
 CFLAGS += -I.
 #CFLAGS += -g
 CFLAGS += -Os
