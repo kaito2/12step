@@ -69,3 +69,6 @@ write :			$(TARGET).mot
 # フォルダの掃除
 clean : 
 				rm -f $(OBJS) $(TARGET) $(TARGET).elf $(TARGET).mot
+
+connect:
+				sudo cu -l ${H8WRITE_SERDEV}
