@@ -109,18 +109,15 @@ int putxval(unsigned long value, int column)
 
     // 下の桁から処理するので、バッファの終端から利用する
     p = buf + sizeof(buf) - 1;
-    // *(p--) = '\0';
+    *(p--) = '\0';
     if (!value && !column)
         column++;
 
+    char arr[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     while (value || column)
     {
         // 16進文字に変換してバッファに格納する
-        char arr[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-        char c = arr[value & 0xf];
-        // *(p--) = "0123456789abcdef"[value & 0xf];
-        p--;
-        *p = c;
+        *(p--) = arr[value & 0xf];
         // 次の桁に進める
         value >>= 4;
         // 桁数指定がある場合はカウントする
@@ -129,7 +126,7 @@ int putxval(unsigned long value, int column)
     }
     // バッファの内容を出力する
     // MEMO: p-- で終端から開始しているので先頭は p+1 になる
-    puts(p);
+    puts(p + 1);
 
     return 0;
 }
