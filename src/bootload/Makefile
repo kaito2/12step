@@ -1,4 +1,4 @@
-PREFIX = ../../../tools
+PREFIX = ../../tools
 ARCH = h8300-elf
 BINDIR = ${PREFIX}/bin
 ADDNAME = ${ARCH}-
