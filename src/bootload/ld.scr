@@ -2,31 +2,82 @@
 OUTPUT_ARCH(h8300h)
 ENTRY("_start")
 
+/* MEMORYコマンドで各メモリ領域を定義する */
+MEMORY
+{
+    /* 
+     * o: 領域の開始メモリアドレス(`origin`) 
+     * l: 領域のサイズ
+     */
+
+    /* ROMの定義 */
+    romall(rx)      : o = 0x000000, l = 0x080000 /* 512KB */
+    vectors(r)      : o = 0x000000, l = 0x000100 /* top of ROM */
+    rom(rx)         : o = 0x000100, l = 0x07ff00
+
+    /* RAMの定義 */
+    ramall(rwx)     : o = 0xffbf20, l = 0x004000 /* 16KB */
+    data(rwx)       : o = 0xfffc20, l = 0x000300
+    stack(rw)       : o = 0xffff00, l = 0x000000 /* end of RAM */
+}
+
 SECTIONS
 {
-    /* メモリの先頭番地からの配置 */
-    . = 0x0;
-
     /* 割り込みベクタ */
     .vectors : {
         vector.o(.data)
-    }
+    } > vectors /* 割り込みベクタ領域に配置 */
 
     /* テキスト領域 */
     .text : {
+        /* .textセクションの先頭を指すシンボルを配置 */
+        _text_start = .;
+        
+        *(.text)
+        
+        /* .textセクションの終端を指すシンボルを配置 */
+        _etext = .;
+    } > rom /* .textセクションはROMに配置 */
+
+    .rodata : {
+        /* .rodataセクションの先頭を指すシンボルを配置 */
+        _rodata_start = .;
+        
         *(.strings)
         *(.rodata)
         *(.rodata.*)
-    }
+
+        /* .rodataセクションの終端を指すシンボルを配置 */
+        _erodata = .;
+    } > rom /* .rodataセクションはROMに配置 */
 
     /* データ領域 */
     .data : {
+        _data_start = .;
+
         *(.data)
-    }
+
+        _edata = .;
+    } > data AT> rom /* .dataセクションの「VA≠PA」対応 */
 
     /* BSS領域 */
     .bss : {
+        _bss_start = .;
+
         *(.bss)
         *(COMMON)
-    }
+
+        _ebss = .;
+    } > data AT> rom /* .bssセクションの「VA≠PA」対応 */
+
+    /* 4バイト・アラインメント */
+    . = ALIGN(4);
+
+    /* セクションの終端に_endシンボルを配置 */
+    _end = .;
+
+    .stack : {
+        /* スタックを指すシンボルを配置 */
+        _stack = .;
+    } > stack
 }
