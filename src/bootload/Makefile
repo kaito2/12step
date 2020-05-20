@@ -22,7 +22,7 @@ H8WRITE_SERDEV = /dev/tty.usbserial-FTSXFJAF
 
 # コンパイルするソースコード群
 OBJS = vector.o startup.o main.o
-OBJS += lib.o serial.o
+OBJS += lib.o serial.o xmodem.o
 
 
 TARGET = kzload

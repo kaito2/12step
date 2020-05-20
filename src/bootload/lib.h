@@ -9,8 +9,14 @@ char *strcpy(char *dst, const char *src);
 int strcmp(const char *s1, const char *s2);
 int strncmp(const char *s1, const char *s2, int len);
 
+// 1文字送信
 int putc(unsigned char c);
+// 1文字受信
+unsigned char getc(void);
+// 文字列送信
 int puts(unsigned char *str);
+// 文字列受信
+int gets(unsigned char *buf);
 
 // 数値の16進表示
 int putxval(unsigned long value, int column);

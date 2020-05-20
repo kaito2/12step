@@ -83,7 +83,7 @@ int serial_is_send_enable(int index)
     return (sci->ssr & H8_3069F_SCI_SSR_TDRE);
 }
 
-//しシリアルへの1文字送信
+// シリアルへの1文字送信
 int serial_send_byte(int index, unsigned char c)
 {
     volatile struct h8_3069f_sci *sci = regs[index].sci;
@@ -95,4 +95,28 @@ int serial_send_byte(int index, unsigned char c)
     sci->ssr &= ~H8_3069F_SCI_SSR_TDRE; // 送信開始状態にする
 
     return 0;
+}
+
+// 受信可能か確認
+int serial_is_recv_enable(int index)
+{
+    volatile struct h8_3069f_sci *sci = regs[index].sci;
+    return (sci->ssr & H8_3069F_SCI_SSR_RDRF);
+}
+
+// シリアルから1文字受信
+unsigned char serial_recv_byte(int index)
+{
+    volatile struct h8_3069f_sci *sci = regs[index].sci;
+    unsigned char c;
+
+    // 受信文字が来るまで待つ
+    while (!serial_is_recv_enable(index))
+        ;
+    c = sci->rdr;
+    // 受信完了
+    // 次のデータの受信を可能にする
+    sci->ssr &= ~H8_3069F_SCI_SSR_RDRF;
+
+    return c;
 }

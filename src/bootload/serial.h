@@ -7,5 +7,9 @@ int serial_init(int index);
 int serial_is_send_enable(int index);
 // 1文字送信
 int serial_send_byte(int index, unsigned char b);
+// 受信可能かを確認
+int serial_is_recv_enable(int index);
+// 1文字受信
+unsigned char serial_recv_byte(int index);
 
 #endif

@@ -17,6 +17,7 @@ MEMORY
 
     /* RAMの定義 */
     ramall(rwx)     : o = 0xffbf20, l = 0x004000 /* 16KB */
+    buffer(rwx)     : o = 0xffdf20, l = 0x001d00 /*  8KB */
     data(rwx)       : o = 0xfffc20, l = 0x000300
     stack(rw)       : o = 0xffff00, l = 0x000000 /* end of RAM */
 }
@@ -50,6 +51,11 @@ SECTIONS
         /* .rodataセクションの終端を指すシンボルを配置 */
         _erodata = .;
     } > rom /* .rodataセクションはROMに配置 */
+
+    .buffer : {
+        /* バッファのシンボルを配置 */
+        _buffer_start = .;
+    } > buffer
 
     /* データ領域 */
     .data : {

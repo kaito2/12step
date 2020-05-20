@@ -1,30 +1,7 @@
 #include "defines.h"
 #include "serial.h"
+#include "xmodem.h"
 #include "lib.h"
-
-int global_data = 0x10;        // .dataセクションへ
-int global_bss;                // .bssセクションへ
-static int static_data = 0x20; // .dataセクションへ
-static int static_bss;         //.bssセクションへ
-
-static void printval(void)
-{
-    puts("global_data = ");
-    putxval(global_data, 0);
-    puts("\n");
-
-    puts("global_bss = ");
-    putxval(global_bss, 0);
-    puts("\n");
-
-    puts("static_data = ");
-    putxval(static_data, 0);
-    puts("\n");
-
-    puts("static_bss = ");
-    putxval(static_bss, 0);
-    puts("\n");
-}
 
 int init(void)
 {
@@ -46,26 +23,92 @@ int init(void)
     return 0;
 }
 
+// メモリの16進ダンプ出力
+static int dump(char *buf, long size)
+{
+    long i;
+    if (size < 0)
+    {
+        puts("no data.\n");
+        return -1;
+    }
+    for (i = 0; i < size; i++)
+    {
+        putxval(buf[i], 2);
+        if ((i & 0xf) == 15)
+        {
+            puts("\n");
+        }
+        else
+        {
+            if ((i & 0xf) == 7)
+                puts(" ");
+            puts(" ");
+        }
+    }
+    puts("\n");
+
+    return 0;
+}
+
+// ウェイト用のサービス関数を追加
+static void wait()
+{
+    volatile long i;
+    for (i = 0; i < 300000; i++)
+        ;
+}
+
 int main(void)
 {
+    static char buf[16];
+    static long size = -1;
+    static unsigned char *loadbuf = NULL;
+    // リンカ・スクリプトで定義されているバッファ
+    static int buffer_start;
+
     init();
-    puts("Hello World!\n");
 
-    putxval(0x10, 0);
-    puts("\n");
-    putxval(0xffff, 0);
-    puts("\n");
-
-    printval();
-    puts("overwrite variables.\n");
-    global_data = 0x20;
-    global_bss = 0x30;
-    static_data = 0x40;
-    static_bss = 0x50;
-    printval();
+    puts("kzload (kozos boot loader) started.\n");
 
     while (1)
-        ;
+    {
+        // プロンプトの表示
+        puts("kzload> ");
+        // シリアルからのコマンド受信
+        gets(buf);
+
+        // XMODEMでのファイルのダウンロード
+        if (!strcmp(buf, "load"))
+        {
+            loadbuf = (char *)(&buffer_start);
+            puts("cmodem_recv is start...\n"); // TODO: remove debug print
+            size = xmodem_recv(loadbuf);
+            puts("cmodem_recv is done!!\n"); // TODO: remove debug print
+            // 転送アプリが終了し、端末アプリに制御が戻るまで待ち合わせる
+            wait();
+            if (size < 0)
+            {
+                puts("\nXMODEM receive error!\n");
+            }
+            else
+            {
+                puts("\nXMODEM receive succeeded.\n");
+            }
+        }
+        // メモリの16新ダンプを出力
+        else if (!strcmp(buf, "dump"))
+        {
+            puts("size: ");
+            putxval(size, 0);
+            puts("\n");
+            dump(loadbuf, size);
+        }
+        else
+        {
+            puts("unknown.\n");
+        }
+    }
 
     return 0;
 }
