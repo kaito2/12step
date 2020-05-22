@@ -22,7 +22,7 @@ H8WRITE_SERDEV = /dev/tty.usbserial-FTSXFJAF
 
 # コンパイルするソースコード群
 OBJS = vector.o startup.o main.o
-OBJS += lib.o serial.o xmodem.o
+OBJS += mylib.o serial.o xmodem.o
 
 
 TARGET = kzload
@@ -72,3 +72,10 @@ clean :
 
 connect:
 				sudo cu -l ${H8WRITE_SERDEV}
+
+CPP_FLAGS = -std=c++17
+# CPP_FLAGS = -nostdinc -nostdlib -fno-builtin -std=c++17
+testall:
+				g++ -v -o testout -I. -Iinclude -Llib -pthread -lgtest_main -lgtest $(CPP_FLAGS) test/*.cc
+				./testout
+				rm testout

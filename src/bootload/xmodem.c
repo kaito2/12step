@@ -1,6 +1,6 @@
 #include "defines.h"
 #include "serial.h"
-#include "lib.h"
+#include "mylib.h"
 #include "xmodem.h"
 
 // 制御コードの定義
@@ -19,7 +19,7 @@ static int xmodem_wait(void)
 {
     long cnt = 0;
 
-    puts("while(!serial_is_recv_enable()) loop is start!!!\n"); // TODO: remove debug print
+    my_puts("while(!serial_is_recv_enable()) loop is start!!!\n"); // TODO: remove debug print
 
     // 受信開始するまで NAKを定期的に送信する
     while (!serial_is_recv_enable(SERIAL_DEFAULT_DEVICE))
@@ -27,12 +27,12 @@ static int xmodem_wait(void)
         if (++cnt >= 2000000)
         {
             cnt = 0;
-            puts("serial_is_recv_enable is false!!!\n"); // TODO: remove debug print
+            my_puts("serial_is_recv_enable is false!!!\n"); // TODO: remove debug print
             serial_send_byte(SERIAL_DEFAULT_DEVICE, XMODEM_NAK);
         }
     }
 
-    puts("serial_is_recv_enable is true!!!\n"); // TODO: remove debug print
+    my_puts("serial_is_recv_enable is true!!!\n"); // TODO: remove debug print
 
     return 0;
 }
@@ -57,7 +57,7 @@ static int xmodem_read_block(unsigned char block_number, char *buf)
     check_sum = 0;
     for (i = 0; i < XMODEM_BLOCK_SIZE; i++)
     {
-        puts("send ACK!!\n"); // TODO: remove debug print
+        my_puts("send ACK!!\n"); // TODO: remove debug print
         c = serial_recv_byte(SERIAL_DEFAULT_DEVICE);
         *(buf++) = c;
         check_sum += c;
@@ -74,18 +74,18 @@ static int xmodem_read_block(unsigned char block_number, char *buf)
 
 long xmodem_recv(char *buf)
 {
-    puts("xmodem_recv() is start!!\n"); // TODO: remove debug print
+    my_puts("xmodem_recv() is start!!\n"); // TODO: remove debug print
     int r, receiving = 0;
     long size = 0;
     unsigned char c, block_number = 0;
 
     while (1)
     {
-        puts("xmodem_wait() is start!!\n"); // TODO: remove debug print
+        my_puts("xmodem_wait() is start!!\n"); // TODO: remove debug print
         if (!receiving)
             xmodem_wait(); // 受信開始されるまで送信要求を出す
 
-        puts("xmodem_wait() is done!!\n"); // TODO: remove debug print
+        my_puts("xmodem_wait() is done!!\n"); // TODO: remove debug print
 
         // 1文字受信
         c = serial_recv_byte(SERIAL_DEFAULT_DEVICE);

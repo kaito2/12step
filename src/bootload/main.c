@@ -1,7 +1,7 @@
 #include "defines.h"
 #include "serial.h"
 #include "xmodem.h"
-#include "lib.h"
+#include "mylib.h"
 
 int init(void)
 {
@@ -14,8 +14,8 @@ int init(void)
      */
 
     // 静的領域（データ領域・BSS領域）を初期化する。
-    memcpy(&data_start, &erodata, (long)&edata - (long)&data_start);
-    memset(&bss_start, 0, (long)&ebss - (long)&bss_start);
+    my_memcpy(&data_start, &erodata, (long)&edata - (long)&data_start);
+    my_memset(&bss_start, 0, (long)&ebss - (long)&bss_start);
 
     // シリアルの初期化
     serial_init(SERIAL_DEFAULT_DEVICE);
@@ -29,24 +29,24 @@ static int dump(char *buf, long size)
     long i;
     if (size < 0)
     {
-        puts("no data.\n");
+        my_puts("no data.\n");
         return -1;
     }
     for (i = 0; i < size; i++)
     {
-        putxval(buf[i], 2);
+        my_putxval(buf[i], 2);
         if ((i & 0xf) == 15)
         {
-            puts("\n");
+            my_puts("\n");
         }
         else
         {
             if ((i & 0xf) == 7)
-                puts(" ");
-            puts(" ");
+                my_puts(" ");
+            my_puts(" ");
         }
     }
-    puts("\n");
+    my_puts("\n");
 
     return 0;
 }
@@ -69,44 +69,44 @@ int main(void)
 
     init();
 
-    puts("kzload (kozos boot loader) started.\n");
+    my_puts("kzload (kozos boot loader) started.\n");
 
     while (1)
     {
         // プロンプトの表示
-        puts("kzload> ");
+        my_puts("kzload> ");
         // シリアルからのコマンド受信
-        gets(buf);
+        my_gets(buf);
 
         // XMODEMでのファイルのダウンロード
-        if (!strcmp(buf, "load"))
+        if (!my_strcmp(buf, "load"))
         {
             loadbuf = (char *)(&buffer_start);
-            puts("cmodem_recv is start...\n"); // TODO: remove debug print
+            my_puts("cmodem_recv is start...\n"); // TODO: remove debug print
             size = xmodem_recv(loadbuf);
-            puts("cmodem_recv is done!!\n"); // TODO: remove debug print
+            my_puts("cmodem_recv is done!!\n"); // TODO: remove debug print
             // 転送アプリが終了し、端末アプリに制御が戻るまで待ち合わせる
             wait();
             if (size < 0)
             {
-                puts("\nXMODEM receive error!\n");
+                my_puts("\nXMODEM receive error!\n");
             }
             else
             {
-                puts("\nXMODEM receive succeeded.\n");
+                my_puts("\nXMODEM receive succeeded.\n");
             }
         }
         // メモリの16新ダンプを出力
-        else if (!strcmp(buf, "dump"))
+        else if (!my_strcmp(buf, "dump"))
         {
-            puts("size: ");
-            putxval(size, 0);
-            puts("\n");
+            my_puts("size: ");
+            my_putxval(size, 0);
+            my_puts("\n");
             dump(loadbuf, size);
         }
         else
         {
-            puts("unknown.\n");
+            my_puts("unknown.\n");
         }
     }
 
